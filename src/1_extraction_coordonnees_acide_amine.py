@@ -108,4 +108,28 @@ for residu_accepteur in coordonnee_proteine :
         
 print(liaison_h)
 
-# Repérage des motifs 4-turns 
+# Repérage du motif 4-turn
+liaison_4_turn = []
+
+for liaison in liaison_h :
+    if liaison["donneur"] == liaison["accepteur"] + 4 :
+        liaison_4_turn.append(liaison)
+
+print(liaison_4_turn)
+
+# Identification des hélices alphas
+helice_alpha = []
+
+for liaison in liaison_4_turn:
+    enchainement_aa = []
+    enchainement_aa.append(liaison["accepteur"])
+
+    aa_helice : []
+    for numero in enchainement_aa:
+        if numero+1 - numero == 1 :
+            aa_helice[numero, numero +1]
+
+print(aa_helice)
+print(helice_alpha)
+
+
