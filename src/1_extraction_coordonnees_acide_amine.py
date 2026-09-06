@@ -117,19 +117,34 @@ for liaison in liaison_h :
 
 print(liaison_4_turn)
 
+
 # Identification des hélices alphas
+
 helice_alpha = []
 
-for liaison in liaison_4_turn:
-    enchainement_aa = []
-    enchainement_aa.append(liaison["accepteur"])
+if len(liaison_4_turn) > 0:
 
-    aa_helice : []
-    for numero in enchainement_aa:
-        if numero+1 - numero == 1 :
-            aa_helice[numero, numero +1]
+    debut = liaison_4_turn[0]["accepteur"]
 
-print(aa_helice)
+    for i in range(1, len(liaison_4_turn)) : 
+
+        actuel = liaison_4_turn[i]["accepteur"]
+        precedent = liaison_4_turn[i-1]["accepteur"]
+
+        if actuel - precedent != 1 :
+
+            # alors l'enchainement précédent se termine avec le donneur de la liaison précédente
+            helice_alpha.append({"debut" : debut, "fin" : liaison_4_turn[i-1]["donneur"]})
+
+            # enchainement de l'hélice prochain
+            debut = actuel
+    
+    # debut de l'hélice et la fin est le donneur du dernier aa de la liste de dictionnaire
+    helice_alpha.append({"debut" : debut, "fin" : liaison_4_turn[-1]["donneur"]})
+
+    # pour ne garder que les segments de deux turns minimum
+    for segment in helice_alpha:
+        if segment["fin"] == segment["debut"]+4 :
+            helice_alpha.remove(segment)
+            
 print(helice_alpha)
-
-
