@@ -108,6 +108,10 @@ for residu_accepteur in coordonnee_proteine :
         
 print(liaison_h)
 
+################
+# HELICE ALPHA #
+################
+
 # Repérage du motif 4-turn
 liaison_4_turn = []
 
@@ -115,12 +119,13 @@ for liaison in liaison_h :
     if liaison["donneur"] == liaison["accepteur"] + 4 :
         liaison_4_turn.append(liaison)
 
+
 print(liaison_4_turn)
 
 
 # Identification des hélices alphas
 
-helice_alpha = []
+segment_successif_4_turn = []
 
 if len(liaison_4_turn) > 0:
 
@@ -134,17 +139,26 @@ if len(liaison_4_turn) > 0:
         if actuel - precedent != 1 :
 
             # alors l'enchainement précédent se termine avec le donneur de la liaison précédente
-            helice_alpha.append({"debut" : debut, "fin" : liaison_4_turn[i-1]["donneur"]})
+            segment_successif_4_turn.append({"debut" : debut, "fin" : liaison_4_turn[i-1]["donneur"]})
 
             # enchainement de l'hélice prochain
             debut = actuel
     
     # debut de l'hélice et la fin est le donneur du dernier aa de la liste de dictionnaire
-    helice_alpha.append({"debut" : debut, "fin" : liaison_4_turn[-1]["donneur"]})
+    segment_successif_4_turn.append({"debut" : debut, "fin" : liaison_4_turn[-1]["donneur"]})
 
-    # pour ne garder que les segments de deux turns minimum
-    for segment in helice_alpha:
-        if segment["fin"] == segment["debut"]+4 :
-            helice_alpha.remove(segment)
-            
+
+# pour ne garder que les segments de deux turns minimum
+helice_alpha = []
+
+for segment in segment_successif_4_turn:
+    if segment["fin"] != segment["debut"] + 4 :
+        helice_alpha.append(segment)
+
 print(helice_alpha)
+
+
+#################
+# FEUILLET BÊTA #
+#################
+
