@@ -108,9 +108,9 @@ for residu_accepteur in coordonnee_proteine :
         
 print(liaison_h)
 
-################
-# HELICE ALPHA #
-################
+##############################
+######## HELICE ALPHA ########
+##############################
 
 # Repérage du motif 4-turn
 liaison_4_turn = []
@@ -148,7 +148,7 @@ if len(liaison_4_turn) > 0:
     segment_4_turn.append({"debut" : debut, "fin" : liaison_4_turn[-1]["donneur"]})
 
 
-# pour ne garder que les segments de deux turns minimum
+# Pour ne garder que les segments de deux turns minimum
 helice_alpha = []
 
 for segment in segment_4_turn:
@@ -158,42 +158,31 @@ for segment in segment_4_turn:
 print(helice_alpha)
 
 
-#################
-# FEUILLET BÊTA #
-#################
-
-# coordonnées_protéine, nom et numero residu
-# deux boucles pour parcourir 
-
-#pont 
-# trio, et que entre deux trio pas de chevauchements -> condition 1
-# calcul des liaisons hydrogènes 
-
+###############################
+######## FEUILLET BÊTA ########
+###############################
 
 # Bridge (pont) --> ladder (echelle) --> sheet (feuillet)
 
+#################
 #### BRIDGES ####
+#################
 
-### PARALELLES BRIDGES ###
+## PARALELLES BRIDGES ##
+########################
 
-# prendre une fenetre de 3 pour accepteur et une fenetre de 3 pour donneur de la liste de dictionnaire liaison_h
-# il faut pas qu'ils se chevauchent 
-# voir s'il existe 2 Hbond entre ces fenetres à chaque fois (ca et ca OU ca et ca)
-# parcourir les numeros de résidus dans coordonnées protéines 
-# je prend numero residu i et j 
-# regarde dans liaison_h s'il existe une relation entre accepteur i(formule) et donneur j(formule)
-# si il existe une liaison_h entre accepteur i(formule) et donneur j(formule) alors  ajouter la liaison dans bridge parallèles
-
+# fonction pour savoir s'il existe une liaison hydrogène entre un residu 1 et 2 (permet de faciliter le code)
 def is_hbond(residu_1, residu_2):
+
     for liaison in liaison_h : 
         if liaison["accepteur"] == residu_1 and liaison["donneur"] == residu_2 : 
             return True 
-    
+
     else :
         return False
 
 
-#sequence avec le numéro de chaque résidus
+# sequence avec le numéro de chaque résidus
 seq_numero_residu = [] 
 
 for numero_residu in coordonnee_proteine :
@@ -218,6 +207,7 @@ print(bridge_parallele)
 
 
 ### ANTI-PARALELLES BRIDGES ###
+###############################
 
 bridge_anti_parallele = []
 for i in range(1, len(seq_numero_residu)- 1): 
@@ -235,3 +225,85 @@ for i in range(1, len(seq_numero_residu)- 1):
 
 print(bridge_anti_parallele)
 
+
+#################
+#### LADDERS ####
+#################
+
+### PARALELLES LADDERS ###
+##########################
+
+ladder_parallele = []
+
+lettre_ladder = "a"
+
+if len(bridge_parallele) > 0:
+
+    debut_1 = bridge_parallele[0]["residu_1"]
+    debut_2 = bridge_parallele[0]["residu_2"]
+
+    for i in range(1, len(bridge_parallele)) : 
+
+        actuel_1 = bridge_parallele[i]["residu_1"]
+        precedent_1 = bridge_parallele[i-1]["residu_1"]
+
+        actuel_2 = bridge_parallele[i]["residu_2"]
+        precedent_2 = bridge_parallele[i-1]["residu_2"]
+
+        if actuel_1 -precedent_1 == 1 and actuel_2 - precedent_2 == 1:
+            continue
+        else : 
+            #on met fin à la ladder
+            ladder_parallele.append({lettre_ladder : {"sequence_1" : [debut_1, precedent_1], "sequence_2" : [debut_2, precedent_2]} }) 
+            
+            #nouveau ladder
+            debut_1 = actuel_1
+            debut_2 = actuel_2
+
+            #lettre ladder suivant
+            lettre_ladder = chr(ord(lettre_ladder) + 1)
+
+    # Ajouter la dernière ladder
+    ladder_parallele.append({lettre_ladder : {"sequence_1": [debut_1, bridge_parallele[-1]["residu_1"]],
+                             "sequence_2": [debut_2, bridge_parallele[-1]["residu_2"]]}})
+
+print(ladder_parallele)
+
+### ANTI-PARALELLES LADDERS ###
+##############################
+
+ladder_anti_parallele = []
+
+lettre_ladder = "a"
+
+if len(bridge_anti_parallele) > 0:
+
+    debut_1 = bridge_anti_parallele[0]["residu_1"]
+    debut_2 = bridge_anti_parallele[0]["residu_2"]
+
+    for i in range(1, len(bridge_anti_parallele)) : 
+
+        actuel_1 = bridge_anti_parallele[i]["residu_1"]
+        precedent_1 = bridge_anti_parallele[i-1]["residu_1"]
+
+        actuel_2 = bridge_anti_parallele[i]["residu_2"]
+        precedent_2 = bridge_anti_parallele[i-1]["residu_2"]
+
+        if actuel_1 -precedent_1 == 1 and actuel_2 - precedent_2 == -1:
+            continue
+        else : 
+            #on met fin à la ladder
+            ladder_anti_parallele.append({lettre_ladder : {"sequence_1" : [debut_1, precedent_1], "sequence_2" : [debut_2, precedent_2]} }) 
+            
+            #nouveau ladder
+            debut_1 = actuel_1
+            debut_2 = actuel_2
+
+            #lettre ladder suivant
+            lettre_ladder = chr(ord(lettre_ladder) + 1)
+
+    # Ajouter la dernière ladder
+    ladder_anti_parallele.append({lettre_ladder : {"sequence_1": [debut_1, bridge_anti_parallele[-1]["residu_1"]],
+                             "sequence_2": [debut_2, bridge_anti_parallele[-1]["residu_2"]]}})
+
+print(ladder_anti_parallele)
