@@ -125,7 +125,7 @@ print(liaison_4_turn)
 
 # Identification des hélices alphas
 
-segment_successif_4_turn = []
+segment_4_turn = []
 
 if len(liaison_4_turn) > 0:
 
@@ -139,19 +139,19 @@ if len(liaison_4_turn) > 0:
         if actuel - precedent != 1 :
 
             # alors l'enchainement précédent se termine avec le donneur de la liaison précédente
-            segment_successif_4_turn.append({"debut" : debut, "fin" : liaison_4_turn[i-1]["donneur"]})
+            segment_4_turn.append({"debut" : debut, "fin" : liaison_4_turn[i-1]["donneur"]})
 
             # enchainement de l'hélice prochain
             debut = actuel
     
     # debut de l'hélice et la fin est le donneur du dernier aa de la liste de dictionnaire
-    segment_successif_4_turn.append({"debut" : debut, "fin" : liaison_4_turn[-1]["donneur"]})
+    segment_4_turn.append({"debut" : debut, "fin" : liaison_4_turn[-1]["donneur"]})
 
 
 # pour ne garder que les segments de deux turns minimum
 helice_alpha = []
 
-for segment in segment_successif_4_turn:
+for segment in segment_4_turn:
     if segment["fin"] != segment["debut"] + 4 :
         helice_alpha.append(segment)
 
@@ -161,4 +161,77 @@ print(helice_alpha)
 #################
 # FEUILLET BÊTA #
 #################
+
+# coordonnées_protéine, nom et numero residu
+# deux boucles pour parcourir 
+
+#pont 
+# trio, et que entre deux trio pas de chevauchements -> condition 1
+# calcul des liaisons hydrogènes 
+
+
+# Bridge (pont) --> ladder (echelle) --> sheet (feuillet)
+
+#### BRIDGES ####
+
+### PARALELLES BRIDGES ###
+
+# prendre une fenetre de 3 pour accepteur et une fenetre de 3 pour donneur de la liste de dictionnaire liaison_h
+# il faut pas qu'ils se chevauchent 
+# voir s'il existe 2 Hbond entre ces fenetres à chaque fois (ca et ca OU ca et ca)
+# parcourir les numeros de résidus dans coordonnées protéines 
+# je prend numero residu i et j 
+# regarde dans liaison_h s'il existe une relation entre accepteur i(formule) et donneur j(formule)
+# si il existe une liaison_h entre accepteur i(formule) et donneur j(formule) alors  ajouter la liaison dans bridge parallèles
+
+def is_hbond(residu_1, residu_2):
+    for liaison in liaison_h : 
+        if liaison["accepteur"] == residu_1 and liaison["donneur"] == residu_2 : 
+            return True 
+    
+    else :
+        return False
+
+
+#sequence avec le numéro de chaque résidus
+seq_numero_residu = [] 
+
+for numero_residu in coordonnee_proteine :
+    seq_numero_residu.append(numero_residu)
+
+
+bridge_parallele = []
+for i in range(1, len(seq_numero_residu)- 1): 
+
+    for j in range(4, len(seq_numero_residu) -1):
+
+        if i > j : # pour eviter d'avoir des doublons de paires
+            continue
+
+        if abs(i - j) < 3: # pour eviter les chevauchements
+            continue
+
+        if is_hbond (i- 1, j) and is_hbond (j, i+1) or is_hbond (j-1, i) and is_hbond (i, j+1) :
+            bridge_parallele.append({"residu_1" : i, "residu_2" : j})
+
+print(bridge_parallele)
+
+
+### ANTI-PARALELLES BRIDGES ###
+
+bridge_anti_parallele = []
+for i in range(1, len(seq_numero_residu)- 1): 
+
+    for j in range(4, len(seq_numero_residu) -1):
+
+        if i > j : # pour eviter d'avoir des doublons de paires
+            continue
+        
+        if abs(i - j) < 3: # pour eviter les chevauchements
+            continue
+
+        if is_hbond (i, j) and is_hbond (j, i) or is_hbond (i-1, j+1) and is_hbond (j-1, i+1) :
+            bridge_anti_parallele.append({"residu_1" : i, "residu_2" : j})
+
+print(bridge_anti_parallele)
 
