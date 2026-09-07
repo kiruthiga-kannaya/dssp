@@ -274,7 +274,7 @@ print(ladder_parallele)
 
 ladder_anti_parallele = []
 
-lettre_ladder = "a"
+lettre_ladder = "A"
 
 if len(bridge_anti_parallele) > 0:
 
@@ -307,3 +307,128 @@ if len(bridge_anti_parallele) > 0:
                              "sequence_2": [debut_2, bridge_anti_parallele[-1]["residu_2"]]}})
 
 print(ladder_anti_parallele)
+
+
+#################
+##### SHEET #####
+#################
+
+# sheet = ensemble d'une ou plusieurs ladders connectées par des rédidus communs
+# un résidu commun : 
+### entre 2 ladders au minimum (feuillet beta minimal) 
+### 3 ladders (grand feuillet)
+
+
+# rassembler les ladders parallèles et anti-paralleles 
+
+all_ladders = []
+
+for ladder in ladder_parallele:
+    all_ladders.append(ladder)
+
+for ladder in ladder_anti_parallele:
+    all_ladders.append(ladder)
+
+
+# je compare chaque ladders deux à deux et je regarde s'il y a au moins un residu commun entre les deux ladders ?
+# je les regroupe ensemble 
+# puis je compare cet ensemble avec les autres s'il y a un residu commun 
+# et je fais ca jusqua que je trouve pas de residu commun
+
+#je les rassemble dans une liste, avec la lettre du ladder mais aussi ave
+
+
+# CONNEXIONS ENTRE LADDERS #
+############################
+
+connexions = []
+
+for i in range(len(all_ladders)):
+
+    # recuperer lettre de la première ladder
+    lettre_1 = list(all_ladders[i].keys())[0]
+
+    sequence_1 = all_ladders[i][lettre_1]["sequence_1"]
+    sequence_2 = all_ladders[i][lettre_1]["sequence_2"]
+
+    # transformer les intervalles en listes de résidus
+    residus_ladder_1 = []
+
+    for residu in range(sequence_1[0], sequence_1[1] + 1):
+        residus_ladder_1.append(residu)
+
+    for residu in range(sequence_2[0], sequence_2[1] + 1):
+        residus_ladder_1.append(residu)
+
+
+    # comparer avec les ladders suivantes
+    for j in range(i + 1, len(all_ladders)):
+
+        # recuperer lettre de la deuxieme ladder
+        lettre_2 = list(all_ladders[j].keys())[0]
+
+        sequence_3 = all_ladders[j][lettre_2]["sequence_1"]
+        sequence_4 = all_ladders[j][lettre_2]["sequence_2"]
+
+        # transformer les intervalles en listes
+        residus_ladder_2 = []
+
+        for residu in range(sequence_3[0], sequence_3[1] + 1):
+            residus_ladder_2.append(residu)
+
+        for residu in range(sequence_4[0], sequence_4[1] + 1):
+            residus_ladder_2.append(residu)
+
+
+        # chercher les résidus communs
+        residus_communs = []
+
+        for residu in residus_ladder_1:
+
+            if residu in residus_ladder_2:
+
+                if residu not in residus_communs: # éviter les doublons
+                    residus_communs.append(residu)
+
+
+        # si les deux ladders ont au moins un résidu commun
+        if len(residus_communs) > 0:
+
+            connexions.append({
+                "ladder_1": lettre_1,
+                "ladder_2": lettre_2,
+                "residus_communs": residus_communs
+            })
+
+
+print(connexions)
+
+
+# Rassembler les connextions
+
+beta_sheets = []
+
+for connexion in connexions:
+
+    ladder_1 = connexion["ladder_1"]
+    ladder_2 = connexion["ladder_2"]
+
+    # si une des deux ladders est déjà dans un sheet
+    for sheet in beta_sheets:
+
+        if ladder_1 in sheet or ladder_2 in sheet:
+
+            if ladder_1 not in sheet:
+                sheet.append(ladder_1)
+
+            if ladder_2 not in sheet:
+                sheet.append(ladder_2)
+
+            break
+
+    else:
+        # Aucune des deux ladders n'était encore dans un sheet
+        beta_sheets.append([ladder_1, ladder_2])
+
+
+print(beta_sheets)
