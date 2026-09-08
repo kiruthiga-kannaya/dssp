@@ -157,6 +157,104 @@ for segment in segment_4_turn:
 
 print(helice_alpha)
 
+##############################
+######## HELICE 3 10 ########
+##############################
+
+# Repérage du motif 3-turn
+liaison_3_turn = []
+
+for liaison in liaison_h :
+    if liaison["donneur"] == liaison["accepteur"] + 3 :
+        liaison_3_turn.append(liaison)
+
+
+print(liaison_3_turn)
+
+
+# Identification des hélices 3_10
+
+segment_3_turn = []
+
+if len(liaison_3_turn) > 0:
+
+    debut = liaison_3_turn[0]["accepteur"]
+
+    for i in range(1, len(liaison_3_turn)) : 
+
+        actuel = liaison_3_turn[i]["accepteur"]
+        precedent = liaison_3_turn[i-1]["accepteur"]
+
+        if actuel - precedent != 1 :
+
+            # alors l'enchainement précédent se termine avec le donneur de la liaison précédente
+            segment_3_turn.append({"debut" : debut, "fin" : liaison_3_turn[i-1]["donneur"]})
+
+            # enchainement de l'hélice prochain
+            debut = actuel
+    
+    # debut de l'hélice et la fin est le donneur du dernier aa de la liste de dictionnaire
+    segment_3_turn.append({"debut" : debut, "fin" : liaison_3_turn[-1]["donneur"]})
+
+
+# Pour ne garder que les segments de deux turns minimum
+helice_3_10 = []
+
+for segment in segment_3_turn:
+    if segment["fin"] != segment["debut"] + 3 :
+        helice_3_10.append(segment)
+
+print(helice_3_10)
+
+###############################
+######## HELICE 5 (pi) ########
+###############################
+
+# Repérage du motif 5-turn
+liaison_5_turn = []
+
+for liaison in liaison_h :
+    if liaison["donneur"] == liaison["accepteur"] + 5 :
+        liaison_5_turn.append(liaison)
+
+
+print(liaison_5_turn)
+
+
+# Identification des hélices pi
+
+segment_5_turn = []
+
+if len(liaison_5_turn) > 0:
+
+    debut = liaison_5_turn[0]["accepteur"]
+
+    for i in range(1, len(liaison_5_turn)) : 
+
+        actuel = liaison_5_turn[i]["accepteur"]
+        precedent = liaison_5_turn[i-1]["accepteur"]
+
+        if actuel - precedent != 1 :
+
+            # alors l'enchainement précédent se termine avec le donneur de la liaison précédente
+            segment_5_turn.append({"debut" : debut, "fin" : liaison_5_turn[i-1]["donneur"]})
+
+            # enchainement de l'hélice prochain
+            debut = actuel
+    
+    # debut de l'hélice et la fin est le donneur du dernier aa de la liste de dictionnaire
+    segment_5_turn.append({"debut" : debut, "fin" : liaison_5_turn[-1]["donneur"]})
+
+
+# Pour ne garder que les segments de deux turns minimum
+helice_pi = []
+
+for segment in segment_5_turn:
+    if segment["fin"] != segment["debut"] + 5 :
+        helice_pi.append(segment)
+
+print(helice_pi)
+
 
 ###############################
 ######## FEUILLET BÊTA ########
@@ -404,7 +502,8 @@ for i in range(len(all_ladders)):
 print(connexions)
 
 
-# Rassembler les connextions
+# Rassembler les connextions #
+##############################
 
 beta_sheets = []
 
@@ -427,7 +526,7 @@ for connexion in connexions:
             break
 
     else:
-        # Aucune des deux ladders n'était encore dans un sheet
+        # si aucun des deux ladders n'était encore dans un sheet
         beta_sheets.append([ladder_1, ladder_2])
 
 
