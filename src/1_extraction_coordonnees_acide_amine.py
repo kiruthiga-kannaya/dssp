@@ -531,3 +531,122 @@ for connexion in connexions:
 
 
 print(beta_sheets)
+
+
+
+
+#################
+#### SUMMARY ####
+#################
+summary = {}
+
+##################### helices
+
+
+for residu in coordonnee_proteine:
+    summary[residu] = ""
+
+for helice in helice_alpha:
+    debut = helice["debut"]
+    fin = helice["fin"]
+
+    for residu in range(debut, fin + 1):
+        summary[residu] = "H"
+
+for helice in helice_3_10:
+    debut = helice["debut"]
+    fin = helice["fin"]
+
+    for residu in range(debut, fin + 1):
+        summary[residu] = "G"
+
+for helice in helice_pi:
+    debut = helice["debut"]
+    fin = helice["fin"]
+
+    for residu in range(debut, fin + 1):
+        summary[residu] = "I"
+
+
+
+##################### beta-sheets
+
+
+# récupérer les lettres des ladders qui appartiennent à un beta-sheet
+
+lettre_ladder_beta_sheets = []
+
+for sheet in beta_sheets:
+    for lettre_ladder in sheet:
+        lettre_ladder_beta_sheets.append(lettre_ladder)
+
+print(lettre_ladder_beta_sheets)
+
+
+# parcourir toutes les ladders
+
+for ladder in all_ladders:
+
+    for lettre_ladder in ladder:
+
+        sequence_1 = ladder[lettre_ladder]["sequence_1"]
+        sequence_2 = ladder[lettre_ladder]["sequence_2"]
+
+        debut_1 = sequence_1[0]
+        fin_1 = sequence_1[1]
+
+        debut_2 = sequence_2[0]
+        fin_2 = sequence_2[1]
+
+        # Ladder appartenant à un beta-sheet
+        if lettre_ladder in lettre_ladder_beta_sheets:
+
+            for residu in range(debut_1, fin_1 + 1):
+                summary[residu] = "E"
+
+            # attention au sens de la deuxième séquence
+            if debut_2 <= fin_2:
+                for residu in range(debut_2, fin_2 + 1):
+                    summary[residu] = "E"
+            else:
+                for residu in range(debut_2, fin_2 - 1, -1):
+                    summary[residu] = "E"
+
+        # Ladder n'appartenant pas à un beta-sheet
+        else:
+
+            for residu in range(debut_1, fin_1 + 1):
+                summary[residu] = "B"
+
+            if debut_2 <= fin_2:
+                for residu in range(debut_2, fin_2 + 1):
+                    summary[residu] = "B"
+            else:
+                for residu in range(debut_2, fin_2 - 1, -1):
+                    summary[residu] = "B"
+
+
+## TABLEAU FINAL 
+
+import pandas as pd
+
+# Numeros des residus
+numero_residu = list(summary.keys())
+
+# Noms des residus
+nom_residu = []
+
+for residu in numero_residu:
+    nom_residu.append(coordonnee_proteine[residu]["nom"])
+
+# Structures secondaires
+structure = list(summary.values())
+
+# dataframe
+df = pd.DataFrame()
+
+df["numero_residu"] = numero_residu
+df["nom_residu"] = nom_residu
+df["structure"] = structure
+
+print(df)
