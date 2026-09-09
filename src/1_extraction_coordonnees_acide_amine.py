@@ -428,13 +428,8 @@ for ladder in ladder_anti_parallele:
     all_ladders.append(ladder)
 
 
-# je compare chaque ladders deux à deux et je regarde s'il y a au moins un residu commun entre les deux ladders ?
+# je compare chaque ladders deux à deux et je regarde s'il y a au moins un residu commun entre les deux ladders
 # je les regroupe ensemble 
-# puis je compare cet ensemble avec les autres s'il y a un residu commun 
-# et je fais ca jusqua que je trouve pas de residu commun
-
-#je les rassemble dans une liste, avec la lettre du ladder mais aussi ave
-
 
 # CONNEXIONS ENTRE LADDERS #
 ############################
@@ -443,39 +438,53 @@ connexions = []
 
 for i in range(len(all_ladders)):
 
-    # recuperer lettre de la première ladder
+    # recuperer la lettre de la premiere ladder
     lettre_1 = list(all_ladders[i].keys())[0]
 
     sequence_1 = all_ladders[i][lettre_1]["sequence_1"]
     sequence_2 = all_ladders[i][lettre_1]["sequence_2"]
 
-    # transformer les intervalles en listes de résidus
+    # transformer les intervalles de la première ladder en liste de résidus
     residus_ladder_1 = []
 
     for residu in range(sequence_1[0], sequence_1[1] + 1):
         residus_ladder_1.append(residu)
 
-    for residu in range(sequence_2[0], sequence_2[1] + 1):
-        residus_ladder_1.append(residu)
+    if sequence_2[0] <= sequence_2[1]:
+
+        for residu in range(sequence_2[0], sequence_2[1] + 1):
+            residus_ladder_1.append(residu)
+
+    else:
+
+        for residu in range(sequence_2[0], sequence_2[1] - 1, -1):
+            residus_ladder_1.append(residu)
 
 
     # comparer avec les ladders suivantes
     for j in range(i + 1, len(all_ladders)):
 
-        # recuperer lettre de la deuxieme ladder
+        # récupérer la lettre de la deuxième ladder
         lettre_2 = list(all_ladders[j].keys())[0]
 
         sequence_3 = all_ladders[j][lettre_2]["sequence_1"]
         sequence_4 = all_ladders[j][lettre_2]["sequence_2"]
 
-        # transformer les intervalles en listes
+        # transformer les intervalles de la deuxième ladder en liste de résidus
         residus_ladder_2 = []
 
         for residu in range(sequence_3[0], sequence_3[1] + 1):
             residus_ladder_2.append(residu)
 
-        for residu in range(sequence_4[0], sequence_4[1] + 1):
-            residus_ladder_2.append(residu)
+        if sequence_4[0] <= sequence_4[1]:
+
+            for residu in range(sequence_4[0], sequence_4[1] + 1):
+                residus_ladder_2.append(residu)
+
+        else:
+
+            for residu in range(sequence_4[0], sequence_4[1] - 1, -1):
+                residus_ladder_2.append(residu)
 
 
         # chercher les résidus communs
@@ -485,7 +494,7 @@ for i in range(len(all_ladders)):
 
             if residu in residus_ladder_2:
 
-                if residu not in residus_communs: # éviter les doublons
+                if residu not in residus_communs:
                     residus_communs.append(residu)
 
 
@@ -502,36 +511,71 @@ for i in range(len(all_ladders)):
 print(connexions)
 
 
+
+
 # Rassembler les connextions #
 ##############################
 
-beta_sheets = []
+Sheets = {}
+
+nom_sheet = "A"
 
 for connexion in connexions:
 
-    ladder_1 = connexion["ladder_1"]
-    ladder_2 = connexion["ladder_2"]
+    ladder1 = connexion["ladder_1"]
+    ladder2 = connexion["ladder_2"]
 
-    # si une des deux ladders est déjà dans un sheet
-    for sheet in beta_sheets:
+    trouve_1 = False
+    trouve_2 = False
 
-        if ladder_1 in sheet or ladder_2 in sheet:
+    sheet_1 = ""
+    sheet_2 = ""
 
-            if ladder_1 not in sheet:
-                sheet.append(ladder_1)
+    # Chercher dans quels sheets se trouvent les deux ladders
+    for sheet in Sheets:
 
-            if ladder_2 not in sheet:
-                sheet.append(ladder_2)
+        if ladder1 in Sheets[sheet]:
+            trouve_1 = True
+            sheet_1 = sheet
 
-            break
+        if ladder2 in Sheets[sheet]:
+            trouve_2 = True
+            sheet_2 = sheet
 
+    # Cas 1 aucune des deux ladders n'est encore dans un sheet
+    if not trouve_1 and not trouve_2:
+
+        Sheets[nom_sheet] = [ladder1, ladder2]
+
+        nom_sheet = chr(ord(nom_sheet) + 1)
+
+    # Cas 2 ladder1 est deja dans un sheet
+    elif trouve_1 and not trouve_2:
+
+        Sheets[sheet_1].append(ladder2)
+
+    # Cas 3 ladder2 est deja dans un sheet
+    elif not trouve_1 and trouve_2:
+
+        Sheets[sheet_2].append(ladder1)
+
+    # Cas 4 les deux ladders sont deja dans le meme sheet
+    elif sheet_1 == sheet_2:
+
+        pass
+
+    # Cas 5 les deux ladders sont dans deux sheets differents
     else:
-        # si aucun des deux ladders n'était encore dans un sheet
-        beta_sheets.append([ladder_1, ladder_2])
+
+        for ladder in Sheets[sheet_2]:
+
+            if ladder not in Sheets[sheet_1]:
+                Sheets[sheet_1].append(ladder)
+
+        del Sheets[sheet_2]
 
 
-print(beta_sheets)
-
+print(Sheets)
 
 
 
@@ -540,11 +584,11 @@ print(beta_sheets)
 #################
 summary = {}
 
-##################### helices
-
-
+# Tous les résidus commencent sans structure
 for residu in coordonnee_proteine:
     summary[residu] = ""
+
+##################### helices
 
 for helice in helice_alpha:
     debut = helice["debut"]
@@ -553,37 +597,8 @@ for helice in helice_alpha:
     for residu in range(debut, fin + 1):
         summary[residu] = "H"
 
-for helice in helice_3_10:
-    debut = helice["debut"]
-    fin = helice["fin"]
-
-    for residu in range(debut, fin + 1):
-        summary[residu] = "G"
-
-for helice in helice_pi:
-    debut = helice["debut"]
-    fin = helice["fin"]
-
-    for residu in range(debut, fin + 1):
-        summary[residu] = "I"
-
-
 
 ##################### beta-sheets
-
-
-# récupérer les lettres des ladders qui appartiennent à un beta-sheet
-
-lettre_ladder_beta_sheets = []
-
-for sheet in beta_sheets:
-    for lettre_ladder in sheet:
-        lettre_ladder_beta_sheets.append(lettre_ladder)
-
-print(lettre_ladder_beta_sheets)
-
-
-# parcourir toutes les ladders
 
 for ladder in all_ladders:
 
@@ -598,32 +613,31 @@ for ladder in all_ladders:
         debut_2 = sequence_2[0]
         fin_2 = sequence_2[1]
 
-        # Ladder appartenant à un beta-sheet
-        if lettre_ladder in lettre_ladder_beta_sheets:
+        # Longueur de la ladder
+        longueur = abs(fin_1 - debut_1) + 1
 
-            for residu in range(debut_1, fin_1 + 1):
-                summary[residu] = "E"
+        # Ladder d'un seul bridge
+        if longueur == 1:
+            structure = "B"
 
-            # attention au sens de la deuxième séquence
-            if debut_2 <= fin_2:
-                for residu in range(debut_2, fin_2 + 1):
-                    summary[residu] = "E"
-            else:
-                for residu in range(debut_2, fin_2 - 1, -1):
-                    summary[residu] = "E"
+        # Ladder de plusieurs bridges
+        else:
+            structure = "E"
 
-        # Ladder n'appartenant pas à un beta-sheet
+        # 1ere sequence
+        for residu in range(debut_1, fin_1 + 1):
+            summary[residu] = structure
+
+        # 2e sequence
+        if debut_2 <= fin_2:
+
+            for residu in range(debut_2, fin_2 + 1):
+                summary[residu] = structure
+
         else:
 
-            for residu in range(debut_1, fin_1 + 1):
-                summary[residu] = "B"
-
-            if debut_2 <= fin_2:
-                for residu in range(debut_2, fin_2 + 1):
-                    summary[residu] = "B"
-            else:
-                for residu in range(debut_2, fin_2 - 1, -1):
-                    summary[residu] = "B"
+            for residu in range(debut_2, fin_2 - 1, -1):
+                summary[residu] = structure
 
 
 ## TABLEAU FINAL 
@@ -650,3 +664,23 @@ df["nom_residu"] = nom_residu
 df["structure"] = structure
 
 print(df)
+
+df_transpose = df.T
+print(df_transpose)
+
+df_transpose = df.T
+
+# pour que ce soit plus visuel
+taille = 20
+
+for debut in range(0, len(df), taille):
+
+    fin = debut + taille
+
+    morceau = df[debut:fin]
+
+    print(morceau.T)
+    print()
+
+#enregistrer le tableau dans le dossier results
+df.to_csv("results/summary.csv", index=False)
