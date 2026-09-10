@@ -1,4 +1,5 @@
-# Extraire le nombre d'acide aminé dans la protéine, pour structurer le dictionnaire : numéro de résidu + nom du résidu
+# Création du dictionnaire contenant les coordonnées C O N H de chaque residu
+
 coordonnee_proteine = {}
 
 with open("data/1P0R.pdb", "r") as proteine:
